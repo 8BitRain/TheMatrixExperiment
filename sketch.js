@@ -39,7 +39,7 @@ function setup(){
 }
 
 function draw(){
-  background(0, 135);
+  background(0, 50);
   streams.forEach(function(stream){
     stream.render();
   });
