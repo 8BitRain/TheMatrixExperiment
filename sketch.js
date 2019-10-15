@@ -7,8 +7,11 @@
 */
 
 var stream;
+var backgroundColor = [0, 255];
 var symbolSize = 21;
 var streams = [];
+
+
 
 function setup(){
   createCanvas(
@@ -19,6 +22,7 @@ function setup(){
   background(0);
   var x = 0;
 
+  /*Stream Logic*/
   for(var i = 0; i <= width / symbolSize; i++){
     var stream= new Stream();
     stream.generateSymbols(x, random(-1000, 0));
@@ -26,6 +30,53 @@ function setup(){
     x += symbolSize;
   }
   textSize(symbolSize);
+
+  //WebMIDI Control
+  WebMidi.enable(function (err) { //check if WebMidi.js is enabled
+
+  if (err) {
+      console.log("WebMidi could not be enabled.", err);
+    } else {
+      console.log("WebMidi enabled!");
+    }
+
+
+  //Name visible MIDI input and output ports
+  console.log("---");
+  console.log("Inputs Ports: ");
+  for(i = 0; i< WebMidi.inputs.length; i++){
+     console.log(i + ": " + WebMidi.inputs[i].name);
+  }
+
+  console.log("---");
+  console.log("Output Ports: ");
+  for(i = 0; i< WebMidi.outputs.length; i++){
+      console.log(i + ": " + WebMidi.outputs[i].name);
+    }
+
+  //Choose an input port
+  inputSoftware = WebMidi.inputs[0];
+
+  try {
+    inputSoftware.addListener('noteon', "all",
+      function (e) {
+        //Show what we are receiving
+        console.log("Received 'noteon' message (" + e.note.name + e.note.octave + ") "+ e.note.number +".");
+        //C6 + B5 B5 is pitch up C6 is pitch down
+        if(e.note.name + e.note.octave == "B5"){
+          backgroundColor[0] = 0;
+          backgroundColor[1] = 255;
+        }
+        if(e.note.name + e.note.octave == "C6"){
+          backgroundColor[0] = 0;
+          backgroundColor[1] = 50;
+        }
+
+      });
+  } catch(err){
+    console.log("Error: " +  err);
+  }
+  });
 
   //An instance of a symbol
   /*symbol = new Symbol(
@@ -39,7 +90,8 @@ function setup(){
 }
 
 function draw(){
-  background(0, 50);
+  //I want to oscillate between high opacity and low opacity
+  background(backgroundColor[0], backgroundColor[1]);
   streams.forEach(function(stream){
     stream.render();
   });
@@ -99,7 +151,7 @@ function Stream(){
     this.symbols.forEach(function(symbol){
       if (symbol.first){
         fill(180, 255, 180);
-        console.log("Works");
+        //console.log("Works");
       } else {
         //fill(0, 255, 70);
         fill(R, G, B);
