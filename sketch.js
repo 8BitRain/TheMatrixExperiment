@@ -7,7 +7,7 @@
 */
 
 var stream;
-var backgroundColor = [0, 255];
+var backgroundColor = [0, 255, -1];
 var symbolSize = 21;
 var streams = [];
 
@@ -65,11 +65,15 @@ function setup(){
         //C6 + B5 B5 is pitch up C6 is pitch down
         if(e.note.name + e.note.octave == "B5"){
           backgroundColor[0] = 0;
-          backgroundColor[1] = 255;
+          //backgroundColor[1] = 255;
+          //Bleed Reverse
+          backgroundColor[2] = -1
         }
         if(e.note.name + e.note.octave == "C6"){
           backgroundColor[0] = 0;
-          backgroundColor[1] = 50;
+          //backgroundColor[1] = 50;
+          //Bleed Start
+          backgroundColor[2] = 1
         }
 
       });
@@ -91,6 +95,17 @@ function setup(){
 
 function draw(){
   //I want to oscillate between high opacity and low opacity
+  this.bleedInterval = 30;
+  //Bleed Start
+  if(backgroundColor[2] == 1 && backgroundColor[1] >= 0){
+    backgroundColor[1] = backgroundColor[1] - 3
+  }
+
+  //Bleed Reverse
+  if(backgroundColor[2] == -1 && backgroundColor[1] <= 255){
+    backgroundColor[1] = backgroundColor[1] + 1;
+  }
+  console.log("Background Opacity: " + backgroundColor[1]);
   background(backgroundColor[0], backgroundColor[1]);
   streams.forEach(function(stream){
     stream.render();
